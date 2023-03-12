@@ -1,12 +1,16 @@
-function[T, Tmiss, Srow3,  W,G, A, B, C, R1,R2,R3] =  main_run(alg)
+function[T, Tmiss, T_rec, Srow3,  W,G, A, B, C, R1,R2,R3] =  main_run(alg)
 if nargin < 1
 alg = 1;
 end
-R1=2;R2=3;R3=3;
+
+R1=2;R2=2;R3=4;
 % generate
-T = reshape(1:60, 3,4,5);
+[Uo,So] = lmlra_rnd([10 12 20], [R1 R2 R3]);
+T = tmprod(So,Uo,[1 2 3]);
+
 % remove some fibres, say 20% of tube fibres
 [Tmiss,~,~] = give_miss_3(T, 0.3);
+
 % Get C and  Run Grid Structured M.C
  W=~isnan(Tmiss(:,:,1));
 [C, Srow3, Tred, Ysub] = give_c(Tmiss, R3);
@@ -32,4 +36,7 @@ else
 end
 % get core
 [G] = get_core(A, B, C, Srow3, Ysub, R1,R2,R3);
+
+% Construct recovered tensor
+T_rec = tmprod(G,{A, B,C},[1 2 3]);
 end
