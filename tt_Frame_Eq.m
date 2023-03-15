@@ -25,8 +25,9 @@ G0=initcoreten(sze,ranks);
 Cores=G0;
 %n=2;
 %k=2;
-v_T = reshape(T, [],1); %vectorization of input tensor
-
+v_T = reshape(T, [], 1); % Vectorization of input tensor
+maxiter=3;
+for iter=1:maxiter
 for n=1:d
     % Mode splitting
     [G_nl,G_nr]=G_nmode_devide(Cores,n);
@@ -46,8 +47,9 @@ for n=1:d
     %v_Gn = reshape(G{n}, [], 1);
     FME = kron(GR_m', eye(sze(n))); %I_n: size(sze(n)); Frame matrix 
     FME = kron(FME, GL_m);
-    vh = pinv(FME)*v_T;
-
+    %vh = pinv(FME)*v_T;
+    vh = lsqr(FME,v_T);
+    %vh = cgs(FME.'*FME, FME.'*v_T); % cgs on normal eqns
     if n==1  % For G{1}
        Cores{n} = reshape(vh,1, sze(n), ranks(n));
     elseif n==d  % For G{d}
@@ -57,5 +59,5 @@ for n=1:d
     end
     
 end
-
+end
 end
