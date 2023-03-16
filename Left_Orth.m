@@ -23,5 +23,6 @@ for k=1:mu-1
     r(k+1) = size(R,2);
     GL{k+1} = reshape(tens2mat(G{k+1},[], 1)*R, r(k+1)*sze(k+1), r(k+2)) ; % tensor-matrix multiplication in mode-1;
 end
-ULeft=GL;
+% left folding of orthogonal cores;
+ULeft=Left_Fold(GL, r);
 end

@@ -1,5 +1,5 @@
 function [VRight]  = Right_Orth(G, mu)
-% left unfolding of cores;
+% right unfolding of cores;
 [GR] = Right_Unfold(G);
 d=length(GR);
 % Size of tensor
@@ -22,5 +22,6 @@ for k = d:-1:mu+1
     r(k) = size(R,2);
     GR{k-1} = reshape(tens2mat(G{k-1},[], 3)*R, r(k-1), sze(k-1)*r(k)) ; % tensor-matrix multiplication in mode-3;
 end
-VRight=GR;
+% right folding of cores;
+VRight=Right_Fold(GR, r);
 end
