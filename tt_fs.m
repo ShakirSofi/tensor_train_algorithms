@@ -10,6 +10,7 @@ Tmat = Tmat(W(:),:);
 Cores{d} = reshape(SN*VN', [ranks(end), sze(d), 1]);
 
 %% Compress in last mode
+%{
 Tmat = Tmat*squeeze(Cores{d})';
 T = zeros(prod(sze(1:end-1)), ranks(end));
 T(W(:),:) = Tmat;
@@ -19,6 +20,8 @@ T = TT_fold(T, sze, d);
 
 % T =  tmprod(rep0(X), Cores{d}, d); ---alter
 %sze(d) = ranks(end);
+%}
+
 %% Other cores
 
 end

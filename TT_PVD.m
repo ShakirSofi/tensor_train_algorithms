@@ -1,12 +1,13 @@
 function [Ucores] = TT_PVD(X, ranks)
  d = ndims(X); %order of tensor
- sze = size(X);
+ sze = size(X); 
+ % ranks =[1 r1 r2 r3.. 1]
  %% initilizing
  Ucores = cell(1, d); 
- r = ranks;
+ r = ranks(2:d);
 
  nr= 1;
- pr= length(ranks);
+ pr= length(r);
  
  n = 2;
  p=d-1;
