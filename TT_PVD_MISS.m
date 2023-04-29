@@ -15,7 +15,8 @@ function [Ucores] = TT_PVD_MISS(X, W, ranks)
  %% Compute First and Last core;
 W3 = reshape(W, sze(1),[]);
 Tm3 = reshape(X , sze(1), [], sze(d));
-cores3 = tt_fs_3(Tm3, W3, [1 r(nr) r(pr) 1]);
+cores3 = tukermiss(Tm3, W3, r(nr), r(pr));% with lq_tuk2
+%cores3 = tt_fs_3(Tm3, W3, [1 r(nr) r(pr) 1]); % very expensive ...
 Ucores{1} = cores3{1};
 Ucores{end} = cores3{3};
 G=cores3{2};
