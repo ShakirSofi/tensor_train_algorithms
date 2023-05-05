@@ -1,4 +1,4 @@
-function [G] = tt_paralell(T,ranks)
+function [G] = tt_parallel(T,ranks)
     d= ndims(T);
     sze=size(T);
     G = cell(1,d);
