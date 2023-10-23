@@ -12,21 +12,23 @@ end
 function [xout] = Solve_ortho(A, b_known)
 [r,c] = size(b_known);
 szA = size(A);
+
 idx = isnan(b_known(:,1));
-b_known(isnan(b_known)) = 0;
 Uex =diag(idx);
 Uex(:,all(Uex==0))=[];
+
 Aex = [A Uex]; % extend standard basis
 Q = ortho_full(Aex, szA(2)+1); % orthonormalize
 R = Q'*Aex;  % find R.
 
+b_known(isnan(b_known)) = 0;
 if c >= 2
-    yout = Q.'*rep0(b_known);
+    yout = Q.'*b_known;
 else
     yout = zeros(size(Q,2), c);
 
     for ic = 1:c
-        yout(:,ic) = Q.'*rep0(b_known);
+        yout(:,ic) = Q.'*b_known;
     end
 end
 
