@@ -3,18 +3,32 @@ function Gm = compute_next2last_core(Tmred, GL)
 r_n1 = size(GL,2);  I_n = size(Tmred,2);  r_n2 = size(Tmred,3); 
 Gm = zeros(r_n1, I_n, r_n2);
 
+% Solve slicewise
 for ii=1:I_n
     slice = squeeze(Tmred(:,ii,:));
-    xout = Solve_ortho(GL, slice);
+    xout = Solve_normal(GL, slice);
+    %xout = Solve_ortho(GL, slice);
     Gm(:,ii,:) = xout(1:size(GL,2),:); 
 end
+
+    
+function [xout] = Solve_normal(A, b_known)
+[r,c] = size(b_known);
+szA = size(A);
+idx = isnan(b_known(:,1));
+
+AhA = A(~idx,:).'*A(~idx,:);
+Ahb = A(~idx,:).'*b_known(~idx, :);
+xout = mldivide(AhA,Ahb);
+end
+
 
 function [xout] = Solve_ortho(A, b_known)
 [r,c] = size(b_known);
 szA = size(A);
 
 idx = isnan(b_known(:,1));
-Uex =diag(idx);
+Uex = diag(idx);
 Uex(:,all(Uex==0))=[];
 
 Aex = [A Uex]; % extend standard basis
@@ -32,7 +46,7 @@ else
     end
 end
 
-xout  = pinv(R+1e-16*eye(size(R)))*yout;
+xout  = pinv(R)*yout;
 
 end
 
@@ -43,9 +57,9 @@ function orthonormalized_matrix = ortho_full(matrix, k)
     % Output:
     % matrix: Fully orthonormalized.
     [m, n] = size(matrix);
-    orthonormalized_matrix = matrix; % Initialize the result matrix.
+    orthonormalized_matrix = matrix; 
     for i = k:n  
-        v = matrix(:, i); 
+        v = orthonormalized_matrix(:, i); 
         % Orthogonalize with respect to previous columns.
         for j = 1:i-1
             u = orthonormalized_matrix(:, j); 
