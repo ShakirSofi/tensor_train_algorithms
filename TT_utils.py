@@ -155,7 +155,53 @@ def ttmulcores(ttcores_a, ttcores_b):
     # multiply TT cores
     mulcores = [core_mul(core_a, core_b) for core_a, core_b in zip(ttcores_a, ttcores_b)]
     return mulcores
+ 
+def ten2cores(x, max_rank = np.inf, threshold = 1e-10):
+    # check if order of ndarray is a multiple of 2
+    assert np.mod(x.ndim, 2) == 0, "Order of ndarray must be a multiple of 2 (rows and columns)"
 
+    # define order, row dimensions, column dimensions, ranks, and cores
+    order = len(x.shape) // 2
+    row_dims = x.shape[:order]
+    col_dims = x.shape[order:]
+    ranks = [1] * (order + 1)
+    cores = []
+
+    # permute dimensions, e.g., for order = 4: p = [0, 4, 1, 5, 2, 6, 3, 7]
+    p = [order * j + i for i in range(order) for j in range(2)]
+    y = np.transpose(x, p).copy()
+
+    # decompose the full tensor
+    for i in range(order - 1):
+        # reshape residual tensor
+        m = ranks[i] * row_dims[i] * col_dims[i]
+        n = np.prod(row_dims[i + 1:]) * np.prod(col_dims[i + 1:])
+        y = np.reshape(y, [m, n])
+
+        # apply SVD in order to isolate modes
+        [u, s, v] = sp.linalg.svd(y, full_matrices=False)
+
+        # rank reduction
+        if threshold != 0:
+            indices = np.where(s / s[0] > threshold)[0]
+            u = u[:, indices]
+            s = s[indices]
+            v = v[indices, :]
+        if max_rank != np.inf:
+            u = u[:, :np.minimum(u.shape[1], max_rank)]
+            s = s[:np.minimum(s.shape[0], max_rank)]
+            v = v[:np.minimum(v.shape[0], max_rank), :]
+
+        # define new TT core
+        ranks[i + 1] = u.shape[1]
+        cores.append(np.reshape(u, [ranks[i], row_dims[i], col_dims[i], ranks[i + 1]]))
+
+        # set new residual tensor
+        y = np.diag(s).dot(v)
+    # define last TT core
+    cores.append(np.reshape(y, [ranks[-2], row_dims[-1], col_dims[-1], 1]))
+    return cores
+ 
 def cores2ten(ttcores, matricize = False):
       """
       Conversion to full format.
