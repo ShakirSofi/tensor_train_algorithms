@@ -106,9 +106,9 @@ for swp=1:nswp
         An  = effective_op(k, PhiL, PhiR, A, rA, Ru, Rv, In_row, In_col);
        
         %optimize (n)th TT-cores Wu & Wv
-        [Wu,D,Wv] = svd(An); 
+        [Wu,D,Wv] = svd(An); % eig
         D = diag(D);                    %D has size(An,1) singular values
-        [D,idx] = sort(D,'descend');    %D has nonnegative values
+        [D,idx] = sort(D,'descend');    % 
         K2 = min(size(An,2),min(size(An,1),K));
         SV = D(1:K2); 
         Wu = Wu(:,idx(1:K2)); 
@@ -320,4 +320,5 @@ function Ak  = effective_op(k, Phi_left, Phi_right, A, rA, Ru, Rv, In_row, In_co
     Ak = reshape(Ak, [Rv(k),Ru(k)*In_row(k),In_col(k)*Rv(k+1),Ru(k+1)]); 
     Ak = permute(Ak,[2,4,1,3]); 
     Ak = reshape(Ak, [Ru(k)*In_row(k)*Ru(k+1),Rv(k)*In_col(k)*Rv(k+1)]);
+
 end
